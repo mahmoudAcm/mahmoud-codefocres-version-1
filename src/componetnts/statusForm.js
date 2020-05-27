@@ -88,6 +88,7 @@ const handleSubmit = (values) => {
 
             if(status == "OK"){
                 if(!prossessSolutions(solutions.result).length){
+                    loadStatus.getStatus([])
                     loadStatus.loadingStatus(`He hasn\'t got ${values['verdict']} yet!`)
                     return;
                 }
