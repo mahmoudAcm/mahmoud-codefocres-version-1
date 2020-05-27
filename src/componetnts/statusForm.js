@@ -8,8 +8,10 @@ const verdictOptions = [
     {name:'Accepted', value:'OK'},
     {name:'Wrong answer', value: 'WRONG_ANSWER'},
     {name:'Memory limit exceeded', value: 'MEMORY_LIMIT_EXCEEDED'},
+    {name: 'Time limit exceeded', value: 'TIME_LIMIT_EXCEEDED'},
     {name:'Pending judgement', value: 'SUBMITTED'},
     {name:'Runtime error', value: 'RUNTIME_ERROR'}
+
 ]
 
 const applyButtonStyle = {
@@ -38,26 +40,26 @@ const form = ({handleSubmit}) => (
 )
 
 const prossessSolutions = (result) => {
-      let dublicate = new Map() ;
+      let double = new Map() ;
       let obj = {} ;
+
       return result.filter(({Ac, contestId, problem, verdict}) => {
-          const {Index} = problem ;
-          obj = {contestId, Index} ;
+          const {index} = problem ;
+          obj = {contestId, index} ;
           obj = JSON.stringify(obj) ;
-
-          if(verdict == "OK"){
-             if(!dublicate[obj]) {
-                 dublicate[obj] = 1 ; 
-                 return true ;
-             }
-             return false ;
+          
+          if(Ac && verdict == "OK"){
+              if(!double[obj]){
+                double[obj] = 1 ;
+                return Ac ;
+              }
+          } else {
+            if(!double[obj]){
+                double[obj] = 1 ;
+                return !Ac ;
+            }
           }
-
-          if(!dublicate[obj]) {
-             dublicate[obj] = 1 ; 
-             return !Ac ;
-          }
-          return false
+          return false ;
       })
 }
 
@@ -83,6 +85,10 @@ const handleSubmit = (values) => {
     fetch('/status', config).then((ft) => {
         ft.json().then((solutions) => {
             const status = solutions.status ;
+            if(!prossessSolutions(solutions.result).length){
+                loadStatus.loadingStatus(`He hasn\'t got ${values['verdict']} yet!`)
+                return;
+            }
             if(status == "OK"){
                 loadStatus.getStatus(prossessSolutions(solutions.result), values['verdict'])
                 split.nextPage();
