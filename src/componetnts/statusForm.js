@@ -42,7 +42,7 @@ const form = ({handleSubmit}) => (
 const prossessSolutions = (result) => {
       let double = new Map() ;
       let obj = {} ;
-
+      if(!result) return []  
       return result.filter(({Ac, contestId, problem, verdict}) => {
           const {index} = problem ;
           obj = {contestId, index} ;
@@ -85,11 +85,12 @@ const handleSubmit = (values) => {
     fetch('/status', config).then((ft) => {
         ft.json().then((solutions) => {
             const status = solutions.status ;
-            if(!prossessSolutions(solutions.result).length){
-                loadStatus.loadingStatus(`He hasn\'t got ${values['verdict']} yet!`)
-                return;
-            }
+
             if(status == "OK"){
+                if(!prossessSolutions(solutions.result).length){
+                    loadStatus.loadingStatus(`He hasn\'t got ${values['verdict']} yet!`)
+                    return;
+                }
                 loadStatus.getStatus(prossessSolutions(solutions.result), values['verdict'])
                 split.nextPage();
                 split.splitPage();
